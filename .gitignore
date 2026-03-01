@@ -1,0 +1,28 @@
+[Bb]in/
+[Oo]bj/
+
+packages/
+*.nuget.props
+*.nuget.targets
+
+## Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+
+## Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+## Configurações de ambiente 
+.env
+appsettings.Development.json
+UserSecrets/
+
+## Sistema Operacional
+.DS_Store
+Thumbs.db
