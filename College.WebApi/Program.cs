@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- 1. Registros dos layers ---
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 // --- 2. Configurações da api ---
 builder.Services.AddControllers();

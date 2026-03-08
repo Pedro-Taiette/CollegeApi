@@ -1,32 +1,20 @@
 ﻿using College.Domain.Abstractions;
 using College.Domain.Entities;
+using College.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace College.Infrastructure.Repositories;
 
 public class StudentRepository: IStudentRepository
 {
-    private readonly List<Student> _storage = new(); // DB
-    
-    public async Task AddAsync(Student student)
-    {
-        _storage.Add(student);
-        await Task.CompletedTask;
-    }
+    private readonly CollegeDbContext _storage; // DB
+    public StudentRepository(CollegeDbContext context) => _storage = context;
 
-    public async Task <Student?> GetByIdAsync(Guid id)
-    {
-        var student = _storage.FirstOrDefault(s => s.Id == id);
-        return await Task.FromResult(student);
-    }
-
-    public async Task <Student?> GetByEmailAsync(string email)
-    {
-        var student = _storage.FirstOrDefault(s => s.Email == email);
-        return await Task.FromResult(student);
-    }   
-
+    public async Task AddAsync(Student student) => await _storage.Students.AddAsync(student);
+    public async Task<Student?> GetByEmailAsync(string email)
+        => await _storage.Students.FirstOrDefaultAsync(x => x.Email == email);
     public async Task<IEnumerable<Student>> GetAllAsync()
-    {
-        return _storage;
-    }
+        => await _storage.Students.ToListAsync();
+    public async Task<Student?> GetByIdAsync(Guid id)
+        => await _storage.Students.FindAsync(id);
 }
