@@ -12,9 +12,11 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<CollegeDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))); // DB Injct.
-        
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
         services.AddScoped<IStudentRepository, StudentRepository>();
+        services.AddScoped<ICourseRepository, CourseRepository>();
+        services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;

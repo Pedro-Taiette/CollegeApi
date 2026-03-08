@@ -1,0 +1,26 @@
+﻿using College.Domain.Abstractions;
+using College.Domain.Entities;
+using College.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace College.Infrastructure.Repositories;
+
+public class CourseRepository : ICourseRepository
+{
+    private readonly CollegeDbContext _context;
+
+    public CourseRepository(CollegeDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<Course?> GetByIdAsync(Guid id)
+    {
+        return await _context.Courses.FindAsync(id);
+    }
+
+    public async Task AddAsync(Course course)
+    {
+        await _context.Courses.AddAsync(course);
+    }
+}

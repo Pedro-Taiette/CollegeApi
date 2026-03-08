@@ -5,16 +5,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace College.Infrastructure.Repositories;
 
-public class StudentRepository: IStudentRepository
+public class StudentRepository : IStudentRepository
 {
-    private readonly CollegeDbContext _storage; // DB
-    public StudentRepository(CollegeDbContext context) => _storage = context;
+    private readonly CollegeDbContext _context;
 
-    public async Task AddAsync(Student student) => await _storage.Students.AddAsync(student);
+    public StudentRepository(CollegeDbContext context) => _context = context;
+
+    public async Task AddAsync(Student student) => await _context.Students.AddAsync(student);
+
     public async Task<Student?> GetByEmailAsync(string email)
-        => await _storage.Students.FirstOrDefaultAsync(x => x.Email == email);
+    {
+        return await _context.Students
+            .Include(s => s.Enrollments)
+                .ThenInclude(e => e.Course)
+            .FirstOrDefaultAsync(x => x.Email == email);
+    }
+
     public async Task<IEnumerable<Student>> GetAllAsync()
-        => await _storage.Students.ToListAsync();
+        => await _context.Students
+            .Include(s => s.Enrollments)
+                .ThenInclude(e => e.Course)
+            .ToListAsync();
+
     public async Task<Student?> GetByIdAsync(Guid id)
-        => await _storage.Students.FindAsync(id);
+    {
+        return await _context.Students
+            .Include(s => s.Enrollments)
+                .ThenInclude(e => e.Course)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
 }
