@@ -23,4 +23,20 @@ public class CourseRepository : ICourseRepository
     {
         await _context.Courses.AddAsync(course);
     }
+
+    public async Task<IEnumerable<Course>> GetAllAsync()
+    {
+        return await _context.Courses
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task DeleteAsync(Guid id)
+    {
+        var course = await _context.Courses.FindAsync(id);
+        if (course != null)
+        {
+            _context.Courses.Remove(course);
+        }
+    }
 }

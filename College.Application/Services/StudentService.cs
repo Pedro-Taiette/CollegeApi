@@ -3,10 +3,11 @@ using College.Application.Exceptions;
 using College.Domain.Abstractions;
 using College.Domain.Constants;
 using College.Domain.Entities;
+using College.Application.Abstractions;
 
 namespace College.Application.Services;
 
-public class StudentService
+public class StudentService: IStudentService
 {
     private readonly IUnitOfWork _unitOfWork;
 

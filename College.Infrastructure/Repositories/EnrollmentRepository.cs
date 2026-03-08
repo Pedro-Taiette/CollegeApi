@@ -17,6 +17,11 @@ public class EnrollmentRepository : IEnrollmentRepository
             .FirstOrDefaultAsync(e => e.StudentId == studentId && e.CourseId == courseId);
     }
 
+    public async Task<Enrollment?> GetByIdAsync(Guid id)
+    {
+        return await _context.Enrollments.FindAsync(id);
+    }
+
     public async Task<IEnumerable<Enrollment>> GetByStudentIdAsync(Guid studentId)
     {
         return await _context.Enrollments

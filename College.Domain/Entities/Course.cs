@@ -15,12 +15,12 @@ public class Course : BaseEntity
         if (string.IsNullOrWhiteSpace(title))
             throw new DomainException(BusinessMessages.CourseTitleRequired);
 
-        if (workloadHours < 1 || workloadHours > 120)
+        if (workloadHours < CourseConstants.MinWorkloadHours || workloadHours > CourseConstants.MaxWorkloadHours)
             throw new DomainException(BusinessMessages.InvalidWorkload);
 
         Title = title;
         WorkloadHours = workloadHours;
     }
 
-    public IEnumerable<Student> Students => Enrollments.Select(e => e.Student);
+    public ICollection<Student> Students { get; private set; } = new List<Student>();
 }

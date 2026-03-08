@@ -1,20 +1,30 @@
-﻿using College.Application.ViewModels;
-using College.Application.Services;
-using College.Application.Exceptions;
+using College.Application.ViewModels;
 using College.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using College.Application.Abstractions;
+
+namespace College.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 public class CoursesController : ControllerBase
 {
-    private readonly CourseService _courseService;
-    private readonly EnrollmentService _enrollmentService;
+    private readonly ICourseService _courseService;
 
-    public CoursesController(CourseService courseService, EnrollmentService enrollmentService)
+    public CoursesController(ICourseService courseService)
     {
         _courseService = courseService;
-        _enrollmentService = enrollmentService;
+    }
+
+    /// <summary>
+    /// Returns all courses
+    /// </summary>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll()
+    {
+        var courses = await _courseService.GetAllAsync();
+        return Ok(courses);
     }
 
     /// <summary>
@@ -36,27 +46,12 @@ public class CoursesController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Enrolls a student in a course
-    /// </summary>
-    [HttpPost("{courseId}/enroll/{studentId}")]
+    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> Enroll(Guid courseId, Guid studentId)
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid id)
     {
-        try
-        {
-            await _enrollmentService.EnrollStudentAsync(studentId, courseId);
-            return NoContent();
-        }
-        catch (DomainException ex)
-        {
-            return UnprocessableEntity(new { error = ex.Message });
-        }
-        catch (BusinessException ex)
-        {
-            return BadRequest(new { error = ex.Message });
-        }
+        await _courseService.DeleteAsync(id); 
+        return NoContent();
     }
 }
