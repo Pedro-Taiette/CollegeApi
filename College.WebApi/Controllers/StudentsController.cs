@@ -1,5 +1,6 @@
-﻿using College.Application.DTOs;
+﻿using College.Application.ViewModels;
 using College.Application.Services;
+using College.Application.Exceptions;
 using College.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,22 +17,33 @@ public class StudentsController : ControllerBase
         _studentService = studentService;
     }
 
+    /// <summary>
+    /// Enrolls a new student.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Enroll([FromBody] RegisterStudentRequest request)
+    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    public async Task<IActionResult> Enroll([FromBody] CreateStudentViewModel viewModel)
     {
         try
         {
-            await _studentService.EnrollAsync(request);
+            await _studentService.EnrollAsync(viewModel);
             return CreatedAtAction(nameof(GetAll), new { message = "Student successfully enrolled." });
         }
         catch (DomainException ex)
+        {
+            return UnprocessableEntity(new { error = ex.Message });
+        }
+        catch (BusinessException ex)
         {
             return BadRequest(new { error = ex.Message });
         }
     }
 
+    /// <summary>
+    /// Retrieves all active students.
+    /// </summary>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll()
@@ -40,6 +52,9 @@ public class StudentsController : ControllerBase
         return Ok(students);
     }
 
+    /// <summary>
+    /// Deactivates a student by ID (soft delete).
+    /// </summary>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -48,9 +63,9 @@ public class StudentsController : ControllerBase
         try
         {
             await _studentService.DeactivateAsync(id);
-            return NoContent(); 
+            return NoContent();
         }
-        catch (DomainException ex)
+        catch (BusinessException ex)
         {
             return BadRequest(new { error = ex.Message });
         }
