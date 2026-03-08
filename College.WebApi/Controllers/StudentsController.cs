@@ -1,8 +1,8 @@
 ﻿using College.Application.ViewModels;
-using College.Application.Services;
 using College.Application.Exceptions;
 using College.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using College.Application.Abstractions;
 
 namespace College.WebApi.Controllers;
 
@@ -10,26 +10,26 @@ namespace College.WebApi.Controllers;
 [Route("api/[controller]")]
 public class StudentsController : ControllerBase
 {
-    private readonly StudentService _studentService;
+    private readonly IStudentService _studentService;
 
-    public StudentsController(StudentService studentService)
+    public StudentsController(IStudentService studentService)
     {
         _studentService = studentService;
     }
 
     /// <summary>
-    /// Enrolls a new student.
+    /// Register a new student.
     /// </summary>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> Enroll([FromBody] CreateStudentViewModel viewModel)
+    public async Task<IActionResult> Register([FromBody] CreateStudentViewModel viewModel)
     {
         try
         {
             await _studentService.EnrollAsync(viewModel);
-            return CreatedAtAction(nameof(GetAll), new { message = "Student successfully enrolled." });
+            return CreatedAtAction(nameof(GetAll), new { message = "Student successfully registered." });
         }
         catch (DomainException ex)
         {

@@ -31,27 +31,30 @@ public class CollegeDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        modelBuilder.Entity<Enrollment>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-
-            entity.HasIndex(e => new { e.StudentId, e.CourseId })
-                .IsUnique()
-                .HasDatabaseName("IX_Enrollments_StudentId_CourseId");
-
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("GETDATE()");
-
-            entity.HasOne(e => e.Student)
-                .WithMany(s => s.Enrollments)
-                .HasForeignKey(e => e.StudentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            entity.HasOne(e => e.Course)
-                .WithMany(c => c.Enrollments)
-                .HasForeignKey(e => e.CourseId)
-                .OnDelete(DeleteBehavior.Cascade);
-        });
+        modelBuilder.Entity<Course>()
+            .HasMany(c => c.Students)
+            .WithMany(s => s.Courses)
+            .UsingEntity<Enrollment>(
+                j => j
+                    .HasOne(e => e.Student)
+                    .WithMany(s => s.Enrollments)
+                    .HasForeignKey(e => e.StudentId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j => j
+                    .HasOne(e => e.Course)
+                    .WithMany(c => c.Enrollments)
+                    .HasForeignKey(e => e.CourseId)
+                    .OnDelete(DeleteBehavior.Cascade),
+                j =>
+                {
+                    j.HasKey(e => e.Id);
+                    j.HasIndex(e => new { e.StudentId, e.CourseId })
+                        .IsUnique()
+                        .HasDatabaseName("IX_Enrollments_StudentId_CourseId");
+                    j.Property(e => e.CreatedAt)
+                        .HasDefaultValueSql("GETDATE()");
+                    j.ToTable("Enrollments");
+                });
 
         base.OnModelCreating(modelBuilder);
     }

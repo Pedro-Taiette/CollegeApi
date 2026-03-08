@@ -22,5 +22,5 @@ public class Student : BaseEntity
         Email = email;
     }
 
-    public IEnumerable<Course> Courses => Enrollments.Select(e => e.Course);
+    public ICollection<Course> Courses { get; private set; } = new List<Course>();
 }

@@ -13,9 +13,19 @@ public static class DependencyInjection
         var serviceTypes = assembly.GetTypes()
             .Where(t => t.Name.EndsWith("Service") && !t.IsInterface && !t.IsAbstract);
 
-        foreach (var type in serviceTypes)
+        foreach (var implementationType in serviceTypes)
         {
-            services.AddScoped(type);
+            var interfaceType = assembly.GetTypes()
+                .FirstOrDefault(t => t.IsInterface && t.Name == $"I{implementationType.Name}");
+
+            if (interfaceType != null)
+            {
+                services.AddScoped(interfaceType, implementationType);
+            }
+            else
+            {
+                services.AddScoped(implementationType);
+            }
         }
 
         return services;
