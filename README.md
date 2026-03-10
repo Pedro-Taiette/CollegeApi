@@ -1,49 +1,94 @@
-To get the project running, follow these steps to configure the database connection via `user-secrets`. This keeps sensitive data out of your source code and the Git repository.
+# Database Setup & Migrations
 
-### Quick Setup
+This project uses **.NET User Secrets** to manage the database connection locally without exposing sensitive information in the repository.
 
-1. **Navigate to the API project folder** (where the `.csproj` or `Program.cs` is located):
+## Configure Database Connection
+
+Follow the steps below to configure your local database connection.
+
+### 1. Navigate to the API project folder
+
+Go to the folder where the `.csproj` or `Program.cs` file is located.
+
 ```bash
 cd College.WebApi
-
 ```
 
+### 2. Initialize User Secrets
 
-2. **Initialize User Secrets** (if not already done):
+If the project does not already have User Secrets enabled, run:
+
 ```bash
 dotnet user-secrets init
-
 ```
 
+### 3. Configure the Connection String
 
-3. **Set your Connection String**:
-Copy and paste the command below, ensuring you use a single backslash (`\`) for the server path:
+Run the command below to set your local database connection.
+
+> ⚠️ Use a **single backslash (`\`)** in the server path.
+
 ```bash
 dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=(localdb)\MSSQLLocalDB;Database=CollegeDb;Trusted_Connection=True;MultipleActiveResultSets=true"
-
 ```
 
+### 4. Verify the Configuration
 
-4. **Verify the configuration**:
+You can confirm that the secret was saved correctly by running:
+
 ```bash
 dotnet user-secrets list
-
 ```
 
+You should see something like:
 
-*You should see `ConnectionStrings:DefaultConnection` listed with your value.*
+```
+ConnectionStrings:DefaultConnection = Server=(localdb)\MSSQLLocalDB;Database=CollegeDb;Trusted_Connection=True;MultipleActiveResultSets=true
+```
 
 ---
 
-### Why this works
+# Configuration Priority in .NET
 
-The .NET `WebApplication.CreateBuilder` automatically loads configuration in this priority order:
+`WebApplication.CreateBuilder` loads configuration in the following order:
 
-1. `appsettings.json` (Base configuration)
-2. `appsettings.{Environment}.json` (Environment-specific)
-3. **User Secrets** (Local overrides — **Highest priority in Development**)
-4. Environment Variables
+1. `appsettings.json` — Base configuration
+2. `appsettings.{Environment}.json` — Environment-specific configuration
+3. **User Secrets** — Local development overrides
+4. Environment Variables — Highest priority in production environments
 
-By setting the value in `user-secrets`, you override any settings in your JSON files without needing to modify them or risk committing your local database path to Git.
+Using **User Secrets** ensures that your **local database configuration is not committed to Git**.
 
-**Note:** If you still have a `ConnectionStrings` section in your `appsettings.Development.json` file, **delete it or comment it out**. This ensures the application forces the use of your local `user-secrets` configuration.
+> ⚠️ If `ConnectionStrings` exists in `appsettings.Development.json`, remove or comment it out to avoid conflicts.
+
+---
+
+# Reset and Recreate Database Migrations
+
+If you need to **reset the database and recreate migrations from scratch**, follow these steps.
+
+### 1. Revert the database to the state before any migrations
+
+```bash
+dotnet ef database update 0 --project College.Infrastructure --startup-project College.WebApi
+```
+
+### 2. Remove the last migration
+
+```bash
+dotnet ef migrations remove --project College.Infrastructure --startup-project College.WebApi
+```
+
+### 3. Create a new migration
+
+```bash
+dotnet ef migrations add InitialCreate --project College.Infrastructure --startup-project College.WebApi
+```
+
+### 4. Apply the migration to the database
+
+```bash
+dotnet ef database update --project College.Infrastructure --startup-project College.WebApi
+```
+
+---
